@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const API_URL = process.env.THIRI_API_URL || "https://thiri.ai";
+const API_URL = process.env.THIRI_API_URL || "https://api.thiri.ai";
 const API_KEY = process.env.THIRI_API_KEY || "";
 
 // ── API client ─────────────────────────────────────────────
