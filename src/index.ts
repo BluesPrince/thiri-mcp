@@ -1,0 +1,126 @@
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const API_URL = process.env.THIRI_API_URL || "https://thiri.ai";
+const API_KEY = process.env.THIRI_API_KEY || "";
+
+// ── API client ─────────────────────────────────────────────
+
+async function thiriPost(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
+  const res = await fetch(`${API_URL}/api/v1${endpoint}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`THIRI API ${res.status}: ${text}`);
+  }
+
+  return res.json();
+}
+
+// ── Server ─────────────────────────────────────────────────
+
+const server = new McpServer({
+  name: "thiri",
+  version: "0.1.0",
+});
+
+// ── Tool: analyze_chord ────────────────────────────────────
+
+server.tool(
+  "analyze_chord",
+  "Parse a chord symbol into its root, quality, intervals, extensions, and harmonic function. " +
+    "When a key is provided, returns the Roman numeral, scale degree, and whether the chord is diatonic.",
+  {
+    chord: z.string().describe("Chord symbol (e.g. 'Dm7', 'Cmaj7/E', 'G7#11')"),
+    key: z.string().optional().describe("Key center for functional analysis (e.g. 'C', 'Bb')"),
+  },
+  async ({ chord, key }) => {
+    const result = await thiriPost("/analyze", { chord, ...(key ? { key } : {}) });
+    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+// ── Tool: resolve_chord ────────────────────────────────────
+
+server.tool(
+  "resolve_chord",
+  "Resolve a chord symbol to spelled note names, frequencies in Hz, MIDI numbers, and recommended improvisation scales.",
+  {
+    chord: z.string().describe("Chord symbol (e.g. 'Cm7', 'F#dim7')"),
+  },
+  async ({ chord }) => {
+    const result = await thiriPost("/resolve", { chord });
+    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+// ── Tool: generate_voicing ─────────────────────────────────
+
+server.tool(
+  "generate_voicing",
+  "Generate instrument-ready voicings for a chord in a specified style. " +
+    "Supports voice leading from a previous voicing for smooth transitions. " +
+    "Styles: rootless, shell, drop2, drop3, pad, triad.",
+  {
+    chord: z.string().describe("Chord symbol (e.g. 'Dm7')"),
+    style: z
+      .enum(["rootless", "shell", "drop2", "drop3", "pad", "triad"])
+      .optional()
+      .describe("Voicing style (default: 'pad')"),
+    octave: z.number().optional().describe("Base octave (default: 3)"),
+    previousNotes: z
+      .array(z.string())
+      .optional()
+      .describe("Previous voicing notes for voice leading (e.g. ['E3', 'G3', 'Bb3', 'D4'])"),
+  },
+  async ({ chord, style, octave, previousNotes }) => {
+    const body: Record<string, unknown> = { chord };
+    if (style) body.style = style;
+    if (octave !== undefined) body.octave = octave;
+    if (previousNotes) body.previousNotes = previousNotes;
+    const result = await thiriPost("/voicing", body);
+    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+// ── Tool: reharmonize ──────────────────────────────────────
+
+server.tool(
+  "reharmonize",
+  "Analyze a chord progression and generate reharmonization suggestions. " +
+    "Returns per-bar substitution options with explanations (tritone subs, secondary dominants, modal interchange) " +
+    "plus complete alternative progressions ranked by adventurousness.",
+  {
+    bars: z
+      .array(z.string())
+      .describe("Chord symbols, one per bar (e.g. ['Cmaj7', 'Dm7', 'G7', 'Cmaj7'])"),
+    key: z.string().describe("Key center (e.g. 'C')"),
+  },
+  async ({ bars, key }) => {
+    const result = await thiriPost("/reharmonize", { bars, key });
+    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+// ── Start ──────────────────────────────────────────────────
+
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error("[thiri-mcp] THIRI Chord Intelligence MCP server running");
+}
+
+main().catch((err) => {
+  console.error("[thiri-mcp] Fatal:", err);
+  process.exit(1);
+});

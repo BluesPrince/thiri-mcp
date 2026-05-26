@@ -1,0 +1,27 @@
+{
+  "name": "@bluesprince/thiri-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for the THIRI Chord Intelligence API — analyze, resolve, voice, and reharmonize any chord symbol",
+  "author": "Blues Prince Media <api@bluesprince.ai>",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "thiri-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "typescript": "^5.8.3"
+  }
+}
