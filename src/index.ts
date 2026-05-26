@@ -97,17 +97,30 @@ server.tool(
 
 server.tool(
   "reharmonize",
-  "Analyze a chord progression and generate reharmonization suggestions. " +
-    "Returns per-bar substitution options with explanations (tritone subs, secondary dominants, modal interchange) " +
-    "plus complete alternative progressions ranked by adventurousness.",
+  "Reharmonize a chord progression using jazz techniques. " +
+    "Returns the reharmonized progression with explanations and alternative versions. " +
+    "Techniques: tritone_sub, backdoor, modal_interchange, secondary_dominant, " +
+    "coltrane_changes, line_cliche, chain_of_dominants, passing_diminished, auto.",
   {
     bars: z
       .array(z.string())
       .describe("Chord symbols, one per bar (e.g. ['Cmaj7', 'Dm7', 'G7', 'Cmaj7'])"),
-    key: z.string().describe("Key center (e.g. 'C')"),
+    key: z.string().optional().describe("Key center for context (e.g. 'C')"),
+    technique: z
+      .enum(["auto", "tritone_sub", "backdoor", "modal_interchange", "secondary_dominant", "coltrane_changes", "line_cliche", "chain_of_dominants", "passing_diminished"])
+      .optional()
+      .describe("Reharmonization technique (default: 'auto')"),
+    density: z
+      .enum(["light", "medium", "heavy"])
+      .optional()
+      .describe("How many chords to reharmonize (default: 'medium')"),
   },
-  async ({ bars, key }) => {
-    const result = await thiriPost("/reharmonize", { bars, key });
+  async ({ bars, key, technique, density }) => {
+    const body: Record<string, unknown> = { bars };
+    if (key) body.key = key;
+    if (technique) body.technique = technique;
+    if (density) body.density = density;
+    const result = await thiriPost("/reharmonize", body);
     return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
   },
 );
