@@ -27,6 +27,72 @@ async function thiriPost(endpoint: string, body: Record<string, unknown>): Promi
   return res.json();
 }
 
+// ── Response formatters ────────────────────────────────────
+
+function formatResolveResponse(data: any): string {
+  const lines: string[] = [
+    `## ${data.root}${data.quality}`,
+    `**Notes:** ${(data.notes || []).join(" - ")}`,
+    `**Intervals:** ${(data.intervals || []).join(" - ")}`,
+    `**MIDI:** ${(data.midi || []).join(", ")}`,
+    `**Frequencies:** ${(data.frequencies || []).map((f: number) => f + " Hz").join(", ")}`,
+  ];
+
+  if (data.scales?.length) {
+    lines.push("", "### Recommended Scales");
+    for (const s of data.scales) {
+      if (typeof s === "string") {
+        lines.push(`- ${s}`);
+      } else {
+        const role = s.role ? ` (${s.role})` : "";
+        const char = s.character ? ` -- ${s.character}` : "";
+        const deg = s.degrees ? ` [${s.degrees.join(" ")}]` : "";
+        lines.push(`- **${s.name}**${role}${deg}${char}`);
+      }
+    }
+  }
+
+  return lines.join("\n");
+}
+
+function formatAnalyzeResponse(data: any): string {
+  const lines: string[] = [
+    `## ${data.symbol}`,
+    `**Root:** ${data.root}  **Quality:** ${data.quality}`,
+    `**Intervals:** ${(data.intervals || []).join(", ")}`,
+  ];
+
+  if (data.numeral) {
+    lines.push(`**Roman numeral:** ${data.numeral} (degree ${data.degree})`);
+    lines.push(`**Function:** ${data.function}${data.diatonic ? " (diatonic)" : " (chromatic)"}`);
+  }
+
+  if (data.scales?.length) {
+    lines.push("", "### Scales");
+    for (const s of data.scales) {
+      lines.push(`- **${s.name}** (${s.role})`);
+    }
+  }
+
+  lines.push("", "```json", JSON.stringify(data, null, 2), "```");
+  return lines.join("\n");
+}
+
+function formatVoicingResponse(data: any): string {
+  const lines: string[] = [
+    `## Voicing: ${data.chord} (${data.style})`,
+    `**Notes:** ${(data.notes || []).join(" - ")}`,
+  ];
+
+  if (data.midi) lines.push(`**MIDI:** ${data.midi.join(", ")}`);
+  if (data.intervals) lines.push(`**Intervals:** ${data.intervals.join(" - ")}`);
+  if (data.template) lines.push(`**Template:** ${data.template}`);
+  if (data.voiceLeadingScore != null) lines.push(`**Voice leading score:** ${data.voiceLeadingScore}`);
+
+  lines.push("", "```json", JSON.stringify(data, null, 2), "```");
+  return lines.join("\n");
+}
+
 // ── Server ─────────────────────────────────────────────────
 
 const server = new McpServer({
@@ -46,7 +112,7 @@ server.tool(
   },
   async ({ chord, key }) => {
     const result = await thiriPost("/analyze", { chord, ...(key ? { key } : {}) });
-    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: "text" as const, text: formatAnalyzeResponse(result) }] };
   },
 );
 
@@ -60,7 +126,7 @@ server.tool(
   },
   async ({ chord }) => {
     const result = await thiriPost("/resolve", { chord });
-    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: "text" as const, text: formatResolveResponse(result) }] };
   },
 );
 
@@ -89,7 +155,7 @@ server.tool(
     if (octave !== undefined) body.octave = octave;
     if (previousNotes) body.previousNotes = previousNotes;
     const result = await thiriPost("/voicing", body);
-    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: "text" as const, text: formatVoicingResponse(result) }] };
   },
 );
 
