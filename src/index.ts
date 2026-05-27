@@ -191,6 +191,39 @@ server.tool(
   },
 );
 
+// ── Resource: chord-scale-map ────────────────────────────────
+server.resource(
+  "chord-scale-map",
+  "thiri://theory/chord-scale-map",
+  { description: "Complete chord-to-scale relationship map from the Music Theory Matrix. Maps 14 chord qualities to primary and secondary scale recommendations." },
+  async () => {
+    const CHORD_SCALE_MAP: Record<string, { primary: string[]; secondary: string[] }> = {
+      maj7:     { primary: ["Ionian", "Lydian"], secondary: ["Major Pentatonic", "Bebop Major"] },
+      "7":      { primary: ["Mixolydian", "Lydian Dominant"], secondary: ["Blues Scale", "Bebop Dominant", "Diminished (HW)"] },
+      "7alt":   { primary: ["Superlocrian (Altered)"], secondary: ["Diminished (WH)", "Whole Tone"] },
+      "7b9":    { primary: ["Diminished (HW)", "Phrygian Dominant"], secondary: ["Superlocrian (Altered)"] },
+      "7#11":   { primary: ["Lydian Dominant"], secondary: ["Whole Tone"] },
+      m7:       { primary: ["Dorian", "Aeolian"], secondary: ["Minor Pentatonic", "Bebop Dorian"] },
+      m7b5:     { primary: ["Locrian", "Locrian #2"], secondary: ["Superlocrian (Altered)"] },
+      mMaj7:    { primary: ["Melodic Minor"], secondary: ["Harmonic Minor"] },
+      dim7:     { primary: ["Diminished (WH)"], secondary: ["Diminished (HW)"] },
+      aug:      { primary: ["Whole Tone", "Lydian Augmented"], secondary: ["Ionian #5"] },
+      "maj7#5": { primary: ["Lydian Augmented", "Ionian #5"], secondary: [] },
+      sus4:     { primary: ["Mixolydian"], secondary: ["Dorian", "Pentatonic"] },
+      "69":     { primary: ["Ionian", "Lydian"], secondary: ["Major Pentatonic"] },
+      m9:       { primary: ["Dorian"], secondary: ["Aeolian", "Melodic Minor"] },
+    };
+
+    return {
+      contents: [{
+        uri: "thiri://theory/chord-scale-map",
+        text: JSON.stringify(CHORD_SCALE_MAP, null, 2),
+        mimeType: "application/json",
+      }],
+    };
+  },
+);
+
 // ── Start ──────────────────────────────────────────────────
 
 async function main() {
