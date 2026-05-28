@@ -87,6 +87,9 @@ function formatVoicingResponse(data: any): string {
   if (data.midi) lines.push(`**MIDI:** ${data.midi.join(", ")}`);
   if (data.intervals) lines.push(`**Intervals:** ${data.intervals.join(" - ")}`);
   if (data.template) lines.push(`**Template:** ${data.template}`);
+  if (data.guideTones?.length) {
+    lines.push(`**Guide tones:** ${data.guideTones.map((g: any) => `${g.noteName} (${g.role}, line ${g.line})`).join("; ")}`);
+  }
   if (data.voiceLeadingScore != null) lines.push(`**Voice leading score:** ${data.voiceLeadingScore}`);
 
   lines.push("", "```json", JSON.stringify(data, null, 2), "```");
@@ -135,24 +138,40 @@ server.tool(
 server.tool(
   "generate_voicing",
   "Generate instrument-ready voicings for a chord in a specified style. " +
-    "Supports voice leading from a previous voicing for smooth transitions. " +
-    "Styles: rootless, shell, drop2, drop3, pad, triad.",
+    "All styles run through the guide-tone skeleton where applicable; pass previousVoicing from an earlier result for strict two-line guide-tone tracking. " +
+    "Styles: guide-tone-1, guide-tone-2, both-guide-tones, rootless, shell, drop-2/drop2, drop-3/drop3, pad, triad.",
   {
     chord: z.string().describe("Chord symbol (e.g. 'Dm7')"),
     style: z
-      .enum(["rootless", "shell", "drop2", "drop3", "pad", "triad"])
+      .enum(["guide-tone-1", "guide-tone-2", "both-guide-tones", "rootless", "shell", "drop-2", "drop2", "drop-3", "drop3", "pad", "triad"])
       .optional()
       .describe("Voicing style (default: 'pad')"),
     octave: z.number().optional().describe("Base octave (default: 3)"),
+    density: z.number().optional().describe("Target voicing density / note count hint"),
+    keyContext: z.string().optional().describe("Key context for diatonic color hooks (e.g. 'C major')"),
+    colorPreferences: z
+      .object({
+        fifth: z.enum(["natural", "b5", "#5", "#11", "b13", "omit"]).optional(),
+        ninth: z.enum(["natural", "b9", "#9", "omit"]).optional(),
+        eleventh: z.enum(["natural", "#11", "omit"]).optional(),
+        thirteenth: z.enum(["natural", "b13", "omit"]).optional(),
+      })
+      .optional()
+      .describe("Explicit color-tone overrides"),
+    previousVoicing: z.any().optional().describe("Prior generate_voicing JSON result for strict guide-tone line tracking"),
     previousNotes: z
       .array(z.string())
       .optional()
       .describe("Previous voicing notes for voice leading (e.g. ['E3', 'G3', 'Bb3', 'D4'])"),
   },
-  async ({ chord, style, octave, previousNotes }) => {
+  async ({ chord, style, octave, density, keyContext, colorPreferences, previousVoicing, previousNotes }) => {
     const body: Record<string, unknown> = { chord };
     if (style) body.style = style;
     if (octave !== undefined) body.octave = octave;
+    if (density !== undefined) body.density = density;
+    if (keyContext) body.keyContext = keyContext;
+    if (colorPreferences) body.colorPreferences = colorPreferences;
+    if (previousVoicing) body.previousVoicing = previousVoicing;
     if (previousNotes) body.previousNotes = previousNotes;
     const result = await thiriPost("/voicing", body);
     return { content: [{ type: "text" as const, text: formatVoicingResponse(result) }] };
