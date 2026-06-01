@@ -4,27 +4,58 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const API_URL = process.env.THIRI_API_URL || "https://api.thiri.ai";
+const API_URL = process.env.THIRI_API_URL || "https://chords.thiri.ai";
 const API_KEY = process.env.THIRI_API_KEY || "";
+const REQUEST_TIMEOUT_MS = Number(process.env.THIRI_TIMEOUT_MS) || 20000;
 
 // ── API client ─────────────────────────────────────────────
+// Targets the v2 grid engine (pitch-class-set theory; fixes the v1 parser/reharm
+// bugs by construction). Hardens per the Chase/Jax report: request timeout (#15),
+// structured error parsing (#17), and quota-header surfacing (#16).
 
-async function thiriPost(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
-  const res = await fetch(`${API_URL}/api/v1${endpoint}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {}),
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`THIRI API ${res.status}: ${text}`);
+async function thiriPost(endpoint: string, body: Record<string, unknown>): Promise<any> {
+  // Fail fast with a clear message instead of a silent 401 (#17).
+  if (!API_KEY) {
+    throw new Error("THIRI_API_KEY is not set. Get a key from thiri.ai and set the THIRI_API_KEY environment variable.");
   }
 
-  return res.json();
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}/v2${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${API_KEY}` },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS), // #15 — no infinite hang
+    });
+  } catch (err: any) {
+    if (err?.name === "TimeoutError" || err?.name === "AbortError") {
+      throw new Error(`THIRI API request timed out after ${REQUEST_TIMEOUT_MS}ms (${endpoint}).`);
+    }
+    throw new Error(`THIRI API request failed (${endpoint}): ${err?.message ?? String(err)}`);
+  }
+
+  if (!res.ok) {
+    // Parse the structured {error, message} shape; never echo raw internal detail (#17).
+    let code = "error", message = `HTTP ${res.status}`;
+    try { const j: any = await res.json(); code = j?.error ?? code; message = j?.message ?? message; } catch { /* non-JSON */ }
+    throw new Error(`THIRI API ${res.status} [${code}]: ${message}`);
+  }
+
+  const data: any = await res.json();
+  // Surface quota headers so an agent can self-pace (#16).
+  const limit = res.headers.get("x-quota-limit");
+  const used = res.headers.get("x-quota-used");
+  if (limit != null || used != null) {
+    data.__quota = { limit: limit != null ? Number(limit) : null, used: used != null ? Number(used) : null };
+  }
+  return data;
+}
+
+// Pull the quota footer (if present) off a response and render it for the agent.
+function quotaFooter(data: any): string {
+  const q = data?.__quota;
+  if (!q || (q.limit == null && q.used == null)) return "";
+  return `\n\n_Quota: ${q.used ?? "?"} / ${q.limit ?? "?"} this period._`;
 }
 
 // ── Response formatters ────────────────────────────────────
@@ -96,11 +127,29 @@ function formatVoicingResponse(data: any): string {
   return lines.join("\n");
 }
 
+// #18 — markdown formatter for reharmonize (was raw JSON.stringify).
+function formatReharmonizeResponse(data: any): string {
+  const orig = (data?.original || []).join(" | ");
+  const lines: string[] = [`## Reharmonize`, `**Original:** \`| ${orig} |\``];
+  const alts = data?.alternatives || [];
+  if (!alts.length) {
+    lines.push("", "_No technique applied to this progression (none matched)._");
+  } else {
+    lines.push("", `### ${alts.length} alternative${alts.length === 1 ? "" : "s"}`);
+    for (const a of alts) {
+      lines.push("", `**${a.technique}** — \`| ${(a.progression || []).join(" | ")} |\``);
+      if (a.explanation) lines.push(`> ${a.explanation}`);
+    }
+  }
+  lines.push("", "```json", JSON.stringify(data, null, 2), "```");
+  return lines.join("\n");
+}
+
 // ── Server ─────────────────────────────────────────────────
 
 const server = new McpServer({
   name: "thiri",
-  version: "0.1.0",
+  version: "0.2.0",
 });
 
 // ── Tool: analyze_chord ────────────────────────────────────
@@ -115,7 +164,7 @@ server.tool(
   },
   async ({ chord, key }) => {
     const result = await thiriPost("/analyze", { chord, ...(key ? { key } : {}) });
-    return { content: [{ type: "text" as const, text: formatAnalyzeResponse(result) }] };
+    return { content: [{ type: "text" as const, text: formatAnalyzeResponse(result) + quotaFooter(result) }] };
   },
 );
 
@@ -129,7 +178,7 @@ server.tool(
   },
   async ({ chord }) => {
     const result = await thiriPost("/resolve", { chord });
-    return { content: [{ type: "text" as const, text: formatResolveResponse(result) }] };
+    return { content: [{ type: "text" as const, text: formatResolveResponse(result) + quotaFooter(result) }] };
   },
 );
 
@@ -138,14 +187,14 @@ server.tool(
 server.tool(
   "generate_voicing",
   "Generate instrument-ready voicings for a chord in a specified style. " +
-    "All styles run through the guide-tone skeleton where applicable; pass previousVoicing from an earlier result for strict two-line guide-tone tracking. " +
-    "Styles: guide-tone-1, guide-tone-2, both-guide-tones, rootless, shell, drop-2/drop2, drop-3/drop3, pad, triad.",
+    "Pass previousNotes (or a previousVoicing object) from an earlier result to get a voiceLeadingScore for the transition. " +
+    "Styles: rootless, bill_evans, shell, triad, pad, guide-tones, guide-tone-1, guide-tone-2, both-guide-tones, drop-2, drop-3.",
   {
     chord: z.string().describe("Chord symbol (e.g. 'Dm7')"),
     style: z
-      .enum(["guide-tone-1", "guide-tone-2", "both-guide-tones", "rootless", "shell", "drop-2", "drop2", "drop-3", "drop3", "pad", "triad"])
+      .enum(["rootless", "bill_evans", "shell", "triad", "pad", "guide-tones", "guide-tone-1", "guide-tone-2", "both-guide-tones", "drop-2", "drop-3"])
       .optional()
-      .describe("Voicing style (default: 'pad')"),
+      .describe("Voicing style (default: 'pad'). bill_evans is an alias of rootless."),
     octave: z.number().optional().describe("Base octave (default: 3)"),
     density: z.number().optional().describe("Target voicing density / note count hint"),
     keyContext: z.string().optional().describe("Key context for diatonic color hooks (e.g. 'C major')"),
@@ -171,10 +220,15 @@ server.tool(
     if (density !== undefined) body.density = density;
     if (keyContext) body.keyContext = keyContext;
     if (colorPreferences) body.colorPreferences = colorPreferences;
-    if (previousVoicing) body.previousVoicing = previousVoicing;
+    // #6 shim: if a previousVoicing object is passed, extract .notes → previousNotes
+    // (which the engine voice-leads on). previousVoicing object is also forwarded.
     if (previousNotes) body.previousNotes = previousNotes;
+    if (previousVoicing) {
+      body.previousVoicing = previousVoicing;
+      if (!previousNotes && Array.isArray((previousVoicing as any)?.notes)) body.previousNotes = (previousVoicing as any).notes;
+    }
     const result = await thiriPost("/voicing", body);
-    return { content: [{ type: "text" as const, text: formatVoicingResponse(result) }] };
+    return { content: [{ type: "text" as const, text: formatVoicingResponse(result) + quotaFooter(result) }] };
   },
 );
 
@@ -183,30 +237,27 @@ server.tool(
 server.tool(
   "reharmonize",
   "Reharmonize a chord progression using jazz techniques. " +
-    "Returns the reharmonized progression with explanations and alternative versions. " +
-    "Techniques: tritone_sub, backdoor, modal_interchange, secondary_dominant, " +
-    "coltrane_changes, line_cliche, chain_of_dominants, passing_diminished, auto.",
+    "Returns one alternative per applicable technique, each with the new progression, the changes, and a plain-English explanation. " +
+    "With technique 'auto' (default) it returns every technique that applies. " +
+    "Techniques: tritone_sub, ii_v_insertion, modal_interchange, diminished_passing, " +
+    "secondary_dominant, chain_of_dominants, coltrane_changes, backdoor. " +
+    "(modal_interchange and backdoor require a key.)",
   {
-    bars: z
+    progression: z
       .array(z.string())
       .describe("Chord symbols, one per bar (e.g. ['Cmaj7', 'Dm7', 'G7', 'Cmaj7'])"),
-    key: z.string().optional().describe("Key center for context (e.g. 'C')"),
+    key: z.string().optional().describe("Key center (e.g. 'C') — enables modal_interchange and backdoor"),
     technique: z
-      .enum(["auto", "tritone_sub", "backdoor", "modal_interchange", "secondary_dominant", "coltrane_changes", "line_cliche", "chain_of_dominants", "passing_diminished"])
+      .enum(["auto", "tritone_sub", "ii_v_insertion", "modal_interchange", "diminished_passing", "secondary_dominant", "chain_of_dominants", "coltrane_changes", "backdoor"])
       .optional()
-      .describe("Reharmonization technique (default: 'auto')"),
-    density: z
-      .enum(["light", "medium", "heavy"])
-      .optional()
-      .describe("How many chords to reharmonize (default: 'medium')"),
+      .describe("Reharmonization technique (default: 'auto' = all applicable)"),
   },
-  async ({ bars, key, technique, density }) => {
-    const body: Record<string, unknown> = { bars };
+  async ({ progression, key, technique }) => {
+    const body: Record<string, unknown> = { progression };
     if (key) body.key = key;
     if (technique) body.technique = technique;
-    if (density) body.density = density;
     const result = await thiriPost("/reharmonize", body);
-    return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+    return { content: [{ type: "text" as const, text: formatReharmonizeResponse(result) + quotaFooter(result) }] };
   },
 );
 
