@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "thiri-mcp": "./dist/index.js"
+    "thiri-mcp": "dist/index.js"
   },
   "files": [
     "dist"
