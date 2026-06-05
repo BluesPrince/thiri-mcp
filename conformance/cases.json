@@ -1,0 +1,22 @@
+{
+  "description": "THIRI Chord Intelligence conformance suite. Language-agnostic correctness cases for chord parsing, spelling, analysis, voicing, and reharmonization. Run any chord library against these and compare. Endpoints: https://chords.thiri.ai/v2/{analyze,resolve,voicing,reharmonize}.",
+  "version": "1",
+  "cases": [
+    { "tool": "resolve", "input": { "chord": "C7sus4" }, "expect": { "notes": ["C", "F", "G", "Bb"] }, "why": "the suspension must replace the 3rd, not sit beside it" },
+    { "tool": "resolve", "input": { "chord": "Caug" }, "expect": { "notes": ["C", "E", "G#"] }, "why": "augmented 5th spelled #5, not b6" },
+    { "tool": "resolve", "input": { "chord": "Cdim7" }, "expect": { "notes": ["C", "Eb", "Gb", "Bbb"] }, "why": "diminished 7th spelled as a double-flat" },
+    { "tool": "resolve", "input": { "chord": "C13" }, "expect": { "notes": ["C", "E", "G", "Bb", "D", "A"] }, "why": "13th chord includes 9 and 13" },
+    { "tool": "resolve", "input": { "chord": "C7#9" }, "expect": { "notesInclude": ["D#"] }, "why": "#9 present and spelled sharp" },
+    { "tool": "analyze", "input": { "chord": "Dm7b5", "key": "C" }, "expect": { "numeral": "iiø7", "diatonic": false }, "why": "half-diminished ii, borrowed" },
+    { "tool": "analyze", "input": { "chord": "Fm7", "key": "C" }, "expect": { "numeral": "iv7" }, "why": "borrowed minor iv" },
+    { "tool": "analyze", "input": { "chord": "Abmaj7", "key": "C" }, "expect": { "numeral": "♭VIΔ7" }, "why": "borrowed flat-VI major 7" },
+    { "tool": "analyze", "input": { "chord": "G7b13", "key": "C" }, "expect": { "quality": "7b13", "diatonic": false }, "why": "altered dominant keeps its alteration" },
+    { "tool": "analyze", "input": { "chord": "Cmaj7/E", "key": "C" }, "expect": { "bassNote": "E" }, "why": "slash chord parses the bass note" },
+    { "tool": "voicing", "input": { "chord": "Cmaj7", "style": "triad" }, "expect": { "notes": ["C3", "E3", "G3"] }, "why": "triad is a real 1-3-5, not a shell" },
+    { "tool": "voicing", "input": { "chord": "Cmaj7", "style": "shell" }, "expect": { "notes": ["C3", "E3", "B3"] }, "why": "shell is 1-3-7" },
+    { "tool": "reharmonize", "input": { "progression": ["Dm7", "G7", "Cmaj7"], "technique": "tritone_sub" }, "expect": { "progressionIncludes": "Db7" }, "why": "tritone sub replaces the resolving V7" },
+    { "tool": "reharmonize", "input": { "progression": ["Dm7", "G7", "Cmaj7"], "technique": "coltrane_changes" }, "expect": { "progression": ["Cmaj7", "Ab7", "Abmaj7", "E7"] }, "why": "Giant Steps major-thirds cycle over a ii-V-I" },
+    { "tool": "reharmonize", "input": { "progression": ["G7", "Cmaj7"], "technique": "backdoor", "key": "C" }, "expect": { "progression": ["Bb7", "Cmaj7"] }, "why": "backdoor ♭VII7 resolves up a whole step" },
+    { "tool": "analyze", "input": { "chord": "Zx9" }, "expect": { "error": true }, "why": "unparseable input fails cleanly, never crashes" }
+  ]
+}
