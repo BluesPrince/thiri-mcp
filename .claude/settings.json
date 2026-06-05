@@ -1,0 +1,6 @@
+{
+  "permissions": {
+    "allow": ["Read", "Edit", "Write", "Bash(npm:*)", "Bash(npx tsc:*)", "Bash(git:*)"],
+    "deny": ["Bash(wrangler deploy:*)", "Bash(npm publish:*)"]
+  }
+}

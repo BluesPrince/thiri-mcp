@@ -1,0 +1,4 @@
+include:
+  - project: 'bluesprincemedia/ci-templates'
+    file: '/agent-pipeline.yml'
+# thiri-mcp has no CI deploy (npm publish is manual/out-of-band).
