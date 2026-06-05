@@ -1,21 +1,33 @@
-# @bluesprincemedia/thiri-mcp
+# 🎷 THIRI Chord Intelligence — MCP Server
 
-MCP server for the **THIRI Chord Intelligence API** — analyze, resolve, voice, and reharmonize any chord symbol from Claude, Cursor, or any MCP client. A thin, local **stdio** adapter over the REST API at `https://chords.thiri.ai`.
+[![npm](https://img.shields.io/npm/v/@bluesprincemedia/thiri-mcp)](https://www.npmjs.com/package/@bluesprincemedia/thiri-mcp)
+[![license](https://img.shields.io/npm/l/@bluesprincemedia/thiri-mcp)](./LICENSE)
+![MCP](https://img.shields.io/badge/MCP-server-black)
+
+**Give your AI real music theory.** An [MCP](https://modelcontextprotocol.io) server that lets Claude, Cursor, or any MCP client **analyze, resolve, voice, and reharmonize** any chord — with answers that are *computed, not guessed*.
+
+LLMs hallucinate music theory: wrong notes, fake roman numerals, voicings that don't voice-lead. THIRI is a **deterministic** engine (pitch-class-set theory over ℤ/12) behind a hosted API — so `C7sus4` keeps its suspension, `Caug` spells `C E G#`, and "Coltrane changes on Dm7 G7 Cmaj7" returns `Cmaj7 Ab7 Abmaj7 E7`, every time.
+
+> ⭐ If this is useful, star the repo — it helps other musicians and agent builders find it.
+
+## What you can ask
+> *"Analyze Dm7b5 in C."* → `iiø7`, half-diminished, borrowed predominant, + scale options
+> *"What notes are in C7sus4?"* → `C F G Bb` (the suspension survives)
+> *"Give me a rootless Cmaj7 voicing, then voice-lead into Dm7."* → voicings + a voice-leading score
+> *"Reharmonize Dm7 G7 Cmaj7 with Coltrane changes."* → `Cmaj7 Ab7 Abmaj7 E7`
 
 ## Tools
-
-| Tool | What It Does |
+| Tool | What it does |
 |------|-------------|
-| `analyze_chord` | Parse chord → root, quality, intervals, harmonic function (incl. secondary dominants & modal-interchange labels) |
+| `analyze_chord` | Chord → root, quality, intervals, roman numeral & harmonic function (secondary dominants, modal-interchange labels) |
 | `resolve_chord` | Chord → spelled notes (enharmonically correct), frequencies, MIDI, scale recommendations |
-| `generate_voicing` | Instrument-ready voicings (rootless/bill_evans, shell, triad, pad, guide-tones, drop-2, drop-3); pass `previousNotes` for a voice-leading score; `colorPreferences` for explicit tensions |
-| `reharmonize` | Progression reharmonization — 8 techniques: tritone_sub, ii_v_insertion, modal_interchange, diminished_passing, secondary_dominant, chain_of_dominants, coltrane_changes, backdoor (or `auto`) |
+| `generate_voicing` | Instrument-ready voicings (rootless/bill_evans, shell, triad, pad, guide-tones, drop-2/3); pass `previousNotes` for a **voice-leading score**; `colorPreferences` for explicit tensions |
+| `reharmonize` | Progression reharmonization — 8 techniques: `tritone_sub`, `ii_v_insertion`, `modal_interchange`, `diminished_passing`, `secondary_dominant`, `chain_of_dominants`, `coltrane_changes`, `backdoor` (or `auto`) |
 
-> **v0.2.0** runs on the v2 grid engine: deterministic pitch-class-set theory (correct sus chords, real triads, enharmonic spelling, all altered dominants). Includes a request timeout, quota-header reporting, and structured error messages.
+> Runs on the **v2 grid engine** — correct sus chords, real triads, enharmonic spelling, all altered dominants — with request timeouts, quota reporting, and structured errors.
 
-## Setup
-
-Get a key from THIRI, then add the server to your MCP client.
+## Install
+Get a free key at **[build.thiri.ai/developers](https://build.thiri.ai/developers)**, then:
 
 **Claude Code (one line):**
 ```sh
@@ -35,25 +47,25 @@ claude mcp add thiri --env THIRI_API_KEY=sk_live_your_key -- npx -y @bluesprince
 }
 ```
 
-Then ask your assistant things like *"analyze Dm7b5 in C"* or *"reharmonize Cmaj7 | A7 | Dm7 | G7."*
+## Prefer raw HTTP? (no MCP needed)
+The same engine is a plain REST API:
+```sh
+curl -X POST https://chords.thiri.ai/v2/analyze \
+  -H "Authorization: Bearer YOUR_KEY" -H "content-type: application/json" \
+  -d '{"chord":"Dm7b5","key":"C"}'
+```
+Four endpoints: `/v2/analyze`, `/v2/resolve`, `/v2/voicing`, `/v2/reharmonize`. See [`openapi.yaml`](./openapi.yaml).
 
-## Environment Variables
-
+## Environment variables
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `THIRI_API_KEY` | (none) | Bearer token for the THIRI API (`sk_live_…`) |
-| `THIRI_API_URL` | `https://chords.thiri.ai` | API base URL (override only for local dev) |
-
-> The key works against **`chords.thiri.ai`**, not `api.thiri.ai` (that's the separate licensing API and will reject it).
+| `THIRI_API_KEY` | (none) | Bearer token (`sk_live_…`) — get one at build.thiri.ai/developers |
+| `THIRI_API_URL` | `https://chords.thiri.ai` | API base (override only for local dev) |
 
 ## Development
-
 ```sh
-npm install
-npm run build
-npm start
+npm install && npm run build && npm start
 ```
 
 ## License
-
-MIT — © 2026 Blues Prince Media
+MIT — © 2026 Blues Prince Media. The client is open; the engine is a hosted service.
