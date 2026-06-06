@@ -27,7 +27,10 @@ LLMs hallucinate music theory: wrong notes, fake roman numerals, voicings that d
 > Runs on the **v2 grid engine** — correct sus chords, real triads, enharmonic spelling, all altered dominants — with request timeouts, quota reporting, and structured errors.
 
 ## Install
-Get a free key at **[build.thiri.ai/developers](https://build.thiri.ai/developers)**, then:
+Get a free key at **[build.thiri.ai/developers](https://build.thiri.ai/developers)**, then pick a path:
+
+**Claude Desktop / web / mobile — hosted (one-click custom connector, nothing to install):**
+Settings → Connectors → **Add custom connector** → URL `https://mcp.thiri.ai/mcp` → paste your `sk_live_` key on the consent page. Same 4 tools, same key, same quota — no config file, no `npx`.
 
 **Claude Code (one line):**
 ```sh
