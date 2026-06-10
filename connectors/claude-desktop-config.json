@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "thiri": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@bluesprincemedia/thiri-mcp"
+      ],
+      "env": {
+        "THIRI_API_KEY": "YOUR_SK_LIVE_KEY"
+      }
+    }
+  }
+}

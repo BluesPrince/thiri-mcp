@@ -1,0 +1,19 @@
+# Smithery configuration file
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - THIRI_API_KEY
+    properties:
+      THIRI_API_KEY:
+        type: string
+        description: "Your THIRI API key (starts with sk_live_). Obtain a free key at build.thiri.ai/developers"
+  commandFunction: |-
+    (config) => ({
+      command: 'node',
+      args: ['dist/index.js'],
+      env: {
+        THIRI_API_KEY: config.THIRI_API_KEY
+      }
+    })

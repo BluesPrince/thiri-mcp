@@ -1,0 +1,554 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "THIRI Chord Intelligence API",
+    "version": "2",
+    "description": "Deterministic music-theory engine. Parse, resolve, voice, and reharmonize any chord symbol. Answers are computed (pitch-class-set theory), not generated — the same input always returns the same output. This spec documents the public surface only; the engine is a hosted service.",
+    "license": {
+      "name": "Proprietary (API service) — client libraries are MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://chords.thiri.ai"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    },
+    {
+      "apiKeyHeader": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Authorization: Bearer sk_live_…"
+      },
+      "apiKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    },
+    "schemas": {
+      "Scale": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "lydian"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "secondary"
+            ]
+          },
+          "semitones": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "character": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "invalid_chord"
+          },
+          "message": {
+            "type": "string",
+            "example": "Could not parse: Zx9"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid API key",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Per-minute or monthly quota exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "headers": {
+      "X-Quota-Limit": {
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Monthly call limit for the tier"
+      },
+      "X-Quota-Used": {
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Successful calls used this calendar month"
+      }
+    }
+  },
+  "paths": {
+    "/v2/analyze": {
+      "post": {
+        "summary": "Analyze a chord's quality and (with a key) harmonic function",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "chord"
+                ],
+                "properties": {
+                  "chord": {
+                    "type": "string",
+                    "example": "Dm7b5"
+                  },
+                  "key": {
+                    "type": "string",
+                    "example": "C",
+                    "description": "Key center for roman-numeral analysis"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Analysis",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "root": {
+                      "type": "string"
+                    },
+                    "quality": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "intervals": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "notes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "bassNote": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "scales": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Scale"
+                      }
+                    },
+                    "diatonic": {
+                      "type": "boolean"
+                    },
+                    "numeral": {
+                      "type": "string",
+                      "example": "iiø7"
+                    },
+                    "degree": {
+                      "type": "integer"
+                    },
+                    "function": {
+                      "type": "string"
+                    },
+                    "borrowed": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "Unparseable chord",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/v2/resolve": {
+      "post": {
+        "summary": "Resolve a chord to notes, frequencies, MIDI, and scale recommendations",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "chord"
+                ],
+                "properties": {
+                  "chord": {
+                    "type": "string",
+                    "example": "C7sus4"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resolution",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "notes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "example": [
+                        "C",
+                        "F",
+                        "G",
+                        "Bb"
+                      ]
+                    },
+                    "intervals": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "midi": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "frequencies": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "scales": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Scale"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "Unparseable chord",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/v2/voicing": {
+      "post": {
+        "summary": "Generate an instrument-ready voicing (optionally voice-led from a prior chord)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "chord"
+                ],
+                "properties": {
+                  "chord": {
+                    "type": "string",
+                    "example": "Cmaj7"
+                  },
+                  "style": {
+                    "type": "string",
+                    "enum": [
+                      "rootless",
+                      "bill_evans",
+                      "shell",
+                      "triad",
+                      "pad",
+                      "guide-tones",
+                      "guide-tone-1",
+                      "guide-tone-2",
+                      "both-guide-tones",
+                      "drop-2",
+                      "drop-3"
+                    ]
+                  },
+                  "octave": {
+                    "type": "integer",
+                    "default": 3
+                  },
+                  "previousNotes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "E3",
+                      "G3",
+                      "B3",
+                      "D4"
+                    ]
+                  },
+                  "keyContext": {
+                    "type": "string",
+                    "example": "C"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Voicing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chord": {
+                      "type": "string"
+                    },
+                    "style": {
+                      "type": "string"
+                    },
+                    "notes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "midi": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer"
+                      }
+                    },
+                    "bass": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "voiceLeadingScore": {
+                      "type": "number",
+                      "description": "0–1, present when previousNotes/previousVoicing supplied"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed previousVoicing/previousNotes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    },
+    "/v2/reharmonize": {
+      "post": {
+        "summary": "Reharmonize a chord progression",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "progression"
+                ],
+                "properties": {
+                  "progression": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "Dm7",
+                      "G7",
+                      "Cmaj7"
+                    ]
+                  },
+                  "technique": {
+                    "type": "string",
+                    "default": "auto",
+                    "enum": [
+                      "auto",
+                      "tritone_sub",
+                      "ii_v_insertion",
+                      "modal_interchange",
+                      "diminished_passing",
+                      "secondary_dominant",
+                      "chain_of_dominants",
+                      "coltrane_changes",
+                      "backdoor"
+                    ]
+                  },
+                  "key": {
+                    "type": "string",
+                    "example": "C",
+                    "description": "Required for modal_interchange and backdoor"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reharmonization alternatives",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "original": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "key": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "alternatives": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "technique": {
+                            "type": "string"
+                          },
+                          "progression": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "changes": {
+                            "type": "array",
+                            "items": {
+                              "type": "object"
+                            }
+                          },
+                          "explanation": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unparseable progression",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          }
+        }
+      }
+    }
+  }
+}
