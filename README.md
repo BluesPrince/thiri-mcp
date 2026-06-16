@@ -4,7 +4,7 @@
 [![license](https://img.shields.io/npm/l/@bluesprincemedia/thiri-mcp)](./LICENSE)
 ![MCP](https://img.shields.io/badge/MCP-server-black)
 
-**Give your AI real music theory.** THIRI is the deterministic **music-theory API + MCP server** for AI builders — it lets Claude, Cursor, or any [MCP](https://modelcontextprotocol.io) agent **analyze chords, run roman-numeral analysis, generate voicings, and reharmonize progressions** with answers that are *computed, not guessed*.
+**Give your AI real music theory.** THIRI is the deterministic **music theory MCP server + API** for AI builders — it lets Claude, Cursor, or any [MCP](https://modelcontextprotocol.io) agent **analyze chords, run roman-numeral analysis, generate voicings, and reharmonize progressions** with answers that are *computed, not guessed*.
 
 LLMs hallucinate music theory: wrong notes, fake roman numerals, voicings that don't voice-lead. THIRI is a **deterministic** engine (pitch-class-set theory over ℤ/12) behind a hosted API — so `C7sus4` keeps its suspension, `Caug` spells `C E G#`, and "Coltrane changes on Dm7 G7 Cmaj7" returns `Cmaj7 Ab7 Abmaj7 E7`, every time.
 
