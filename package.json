@@ -1,9 +1,26 @@
 {
   "name": "@bluesprincemedia/thiri-mcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MCP server for the THIRI Chord Intelligence API — analyze, resolve, voice, and reharmonize any chord symbol",
   "author": "Blues Prince Media <api@bluesprince.ai>",
   "license": "MIT",
+  "homepage": "https://thiri.ai/developers.html",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BluesPrince/thiri-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/BluesPrince/thiri-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "music",
+    "chords",
+    "music-theory",
+    "reharmonization",
+    "thiri"
+  ],
   "type": "module",
   "bin": {
     "thiri-mcp": "dist/index.js"
