@@ -4,9 +4,11 @@
 [![license](https://img.shields.io/npm/l/@bluesprincemedia/thiri-mcp)](./LICENSE)
 ![MCP](https://img.shields.io/badge/MCP-server-black)
 
-**Give your AI real music theory.** An [MCP](https://modelcontextprotocol.io) server that lets Claude, Cursor, or any MCP client **analyze, resolve, voice, and reharmonize** any chord — with answers that are *computed, not guessed*.
+**Give your AI real music theory.** THIRI is the deterministic **music-theory API + MCP server** for AI builders — it lets Claude, Cursor, or any [MCP](https://modelcontextprotocol.io) agent **analyze chords, run roman-numeral analysis, generate voicings, and reharmonize progressions** with answers that are *computed, not guessed*.
 
 LLMs hallucinate music theory: wrong notes, fake roman numerals, voicings that don't voice-lead. THIRI is a **deterministic** engine (pitch-class-set theory over ℤ/12) behind a hosted API — so `C7sus4` keeps its suspension, `Caug` spells `C E G#`, and "Coltrane changes on Dm7 G7 Cmaj7" returns `Cmaj7 Ab7 Abmaj7 E7`, every time.
+
+**Downstream of Suno / Udio or any generator?** Wrap the output and get a correct chord chart your agent can trust. And unlike `tonal.js` or `music21`, THIRI is hosted and agent-native (no install, any language) — and it *reharmonizes* and *voice-leads*, not just looks chords up.
 
 > ⭐ If this is useful, star the repo — it helps other musicians and agent builders find it.
 
