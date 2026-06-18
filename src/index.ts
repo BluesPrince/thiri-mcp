@@ -162,7 +162,7 @@ server.tool(
     chord: z.string().describe("Chord symbol (e.g. 'Dm7', 'Cmaj7/E', 'G7#11')"),
     key: z.string().optional().describe("Key center for functional analysis (e.g. 'C', 'Bb')"),
   },
-  { title: "Analyze Chord", readOnlyHint: true },
+  { title: "Analyze Chord", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   async ({ chord, key }) => {
     const result = await thiriPost("/analyze", { chord, ...(key ? { key } : {}) });
     return { content: [{ type: "text" as const, text: formatAnalyzeResponse(result) + quotaFooter(result) }] };
@@ -177,7 +177,7 @@ server.tool(
   {
     chord: z.string().describe("Chord symbol (e.g. 'Cm7', 'F#dim7')"),
   },
-  { title: "Resolve Chord", readOnlyHint: true },
+  { title: "Resolve Chord", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   async ({ chord }) => {
     const result = await thiriPost("/resolve", { chord });
     return { content: [{ type: "text" as const, text: formatResolveResponse(result) + quotaFooter(result) }] };
@@ -215,7 +215,7 @@ server.tool(
       .optional()
       .describe("Previous voicing notes for voice leading (e.g. ['E3', 'G3', 'Bb3', 'D4'])"),
   },
-  { title: "Generate Voicing", readOnlyHint: true },
+  { title: "Generate Voicing", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   async ({ chord, style, octave, density, keyContext, colorPreferences, previousVoicing, previousNotes }) => {
     const body: Record<string, unknown> = { chord };
     if (style) body.style = style;
@@ -255,7 +255,7 @@ server.tool(
       .optional()
       .describe("Reharmonization technique (default: 'auto' = all applicable)"),
   },
-  { title: "Reharmonize Progression", readOnlyHint: true },
+  { title: "Reharmonize Progression", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   async ({ progression, key, technique }) => {
     const body: Record<string, unknown> = { progression };
     if (key) body.key = key;
