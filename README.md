@@ -25,8 +25,59 @@ LLMs hallucinate music theory: wrong notes, fake roman numerals, voicings that d
 | `resolve_chord` | Chord → spelled notes (enharmonically correct), frequencies, MIDI, scale recommendations |
 | `generate_voicing` | Instrument-ready voicings (rootless/bill_evans, shell, triad, pad, guide-tones, drop-2/3); pass `previousNotes` for a **voice-leading score**; `colorPreferences` for explicit tensions |
 | `reharmonize` | Progression reharmonization — 8 techniques: `tritone_sub`, `ii_v_insertion`, `modal_interchange`, `diminished_passing`, `secondary_dominant`, `chain_of_dominants`, `coltrane_changes`, `backdoor` (or `auto`) |
+| `conduct_band` | Natural-language band conduct → lanes + MIDI (hosted MCP v0.3+) |
 
 > Runs on the **v2 grid engine** — correct sus chords, real triads, enharmonic spelling, all altered dominants — with request timeouts, quota reporting, and structured errors.
+
+### Local Csound MCP (Desktop only)
+
+For **hear-it** agent loops (conduct → Csound score → WAV), add a second local server alongside hosted theory tools:
+
+```json
+{
+  "mcpServers": {
+    "thiri": {
+      "command": "npx",
+      "args": ["-y", "@bluesprincemedia/thiri-mcp"],
+      "env": { "THIRI_API_KEY": "sk_live_your_key" }
+    },
+    "thiri-conductor": {
+      "command": "npx",
+      "args": ["-y", "@bluesprincemedia/thiri-mcp", "thiri-conductor-mcp"],
+      "env": { "THIRI_API_KEY": "sk_live_your_key" }
+    },
+    "thiri-composition": {
+      "command": "npx",
+      "args": ["-y", "@bluesprincemedia/thiri-mcp", "thiri-composition-mcp"]
+    }
+  }
+}
+```
+
+| Bin | Tools |
+|-----|-------|
+| `thiri-conductor-mcp` | `conduct_band`, `build_csound_score`, `render_csound_wav`, `play_audio`, `search_csound_corpus`, `render_with_tension` |
+| `thiri-composition-mcp` | Composition IR tools + `play_composition` (fluidsynth preview) |
+
+Requires **Csound CLI** on PATH for WAV render. Proof: `npm run test:conductor` · live docs: [build.thiri.ai/lab/conductor-mcp](https://build.thiri.ai/lab/conductor-mcp) · [agent recipes](https://build.thiri.ai/lab/agent-recipes).
+
+### Flagship agent recipe (analyze → conduct → render → critique)
+
+Paste in order after dual MCP config above:
+
+1. **Analyze** — *"Analyze Dm7 G7 Cmaj7 in key C with analyze_chord; summarize roman numerals and tension."*
+2. **Conduct** — *"conduct_band: warm Rhodes pad, walking bass, brush drums, 8 bars medium swing in C."*
+3. **Render** — *"build_csound_score from lanes, then render_csound_wav at tempo 120."*
+4. **Critique** — *"play_audio; critique voice-leading and register balance; suggest one revision."*
+
+Full prompts: [build.thiri.ai/lab/agent-recipes](https://build.thiri.ai/lab/agent-recipes)
+
+### Hosted vs local boundary
+
+| Surface | Csound WAV |
+|---------|------------|
+| `mcp.thiri.ai` / hosted connector | No — theory + `conduct_band` lanes only |
+| Local `thiri-conductor-mcp` | Yes — requires Csound CLI on your machine |
 
 ## Install
 Get a free key at **[build.thiri.ai/developers](https://build.thiri.ai/developers)**, then pick a path:
@@ -59,7 +110,7 @@ curl -X POST https://chords.thiri.ai/v2/analyze \
   -H "Authorization: Bearer YOUR_KEY" -H "content-type: application/json" \
   -d '{"chord":"Dm7b5","key":"C"}'
 ```
-Four endpoints: `/v2/analyze`, `/v2/resolve`, `/v2/voicing`, `/v2/reharmonize`. See [`openapi.yaml`](./openapi.yaml).
+Four endpoints: `/v2/analyze`, `/v2/resolve`, `/v2/voicing`, `/v2/reharmonize`, `/v2/conduct`. See [`openapi.yaml`](./openapi.yaml).
 
 ## Environment variables
 | Variable | Default | Description |
