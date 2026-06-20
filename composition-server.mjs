@@ -23,8 +23,8 @@ import {
   defaultGrid, createComposition, composeProgression, revoiceProgression,
   renderComposition, reharmonizeSection, setChord,
   inspectComposition, TEMPLATE_IDS,
-} from "../thiri-api-worker/src/composition.mjs";
-import { writeMidiFile, playComposition, playbackEnv } from "../thiri-api-worker/src/playback.mjs";
+} from "./vendor/thiri-composition-engine/composition.mjs";
+import { writeMidiFile, playComposition, playbackEnv } from "./vendor/thiri-composition-engine/playback.mjs";
 
 const grid = defaultGrid();
 const COMPS = new Map();        // id -> composition

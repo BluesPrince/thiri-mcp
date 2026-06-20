@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CAPABILITY_MANIFEST_PATH = join(__dirname, "../../THIRI/lab/agent-capability.v1.json");
 
 const API_URL = process.env.THIRI_API_URL || "https://chords.thiri.ai";
 const API_KEY = process.env.THIRI_API_KEY || "";
@@ -149,7 +155,7 @@ function formatReharmonizeResponse(data: any): string {
 
 const server = new McpServer({
   name: "thiri",
-  version: "0.2.0",
+  version: "0.3.0",
 });
 
 // ── Tool: analyze_chord ────────────────────────────────────
@@ -265,6 +271,42 @@ server.tool(
   },
 );
 
+// ── Tool: conduct_band ─────────────────────────────────────
+
+function formatConductResponse(data: any): string {
+  const c = data.conductor ?? {};
+  const lines: string[] = [
+    "## Conduct",
+    `**Duration:** ${c.durationSec ?? "?"}s  **Tempo:** ${c.tempo ?? "?"} BPM  **Groove:** ${c.groove ?? "?"}`,
+    "",
+    `**Lead sheet:** \`${data.leadSheet ?? ""}\``,
+    "",
+    "### Lanes",
+  ];
+  for (const lane of data.lanes ?? []) {
+    lines.push(`- **${lane.role}** — ${lane.notes?.length ?? 0} notes${lane.summary ? ` (${lane.summary})` : ""}`);
+  }
+  if (data.midiBase64) lines.push("", `_MIDI base64: ${data.midiBase64.length} chars (use conductor MCP to export)_`);
+  lines.push("", "```json", JSON.stringify(data, null, 2), "```");
+  return lines.join("\n");
+}
+
+server.tool(
+  "conduct_band",
+  "Arrange a 4-piece band from a natural-language prompt. Returns conductor tempo/groove, 4 lanes of note events, lead sheet, and base64 MIDI. Browser/client synthesizes audio via Csound; use thiri-conductor-mcp locally to render WAV.",
+  {
+    prompt: z.string().describe("Musical direction (e.g. '12-second neo-soul band in Eb, Rhodes + analog bass')"),
+    durationSec: z.number().optional().describe("Optional target duration override"),
+  },
+  { title: "Conduct Band", readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+  async ({ prompt, durationSec }) => {
+    const body: Record<string, unknown> = { prompt };
+    if (durationSec !== undefined) body.durationSec = durationSec;
+    const result = await thiriPost("/conduct", body);
+    return { content: [{ type: "text" as const, text: formatConductResponse(result) + quotaFooter(result) }] };
+  },
+);
+
 // ── Resource: chord-scale-map ────────────────────────────────
 server.resource(
   "chord-scale-map",
@@ -292,6 +334,39 @@ server.resource(
       contents: [{
         uri: "thiri://theory/chord-scale-map",
         text: JSON.stringify(CHORD_SCALE_MAP, null, 2),
+        mimeType: "application/json",
+      }],
+    };
+  },
+);
+
+// ── Resource: studio capability manifest ───────────────────
+server.resource(
+  "studio-capability-manifest",
+  "thiri://studio/capability-manifest",
+  {
+    description:
+      "Unified THIRI studio agent manifest — instruments, MCP tools, Csound map, deterministic command grammar.",
+  },
+  async () => {
+    let text: string;
+    try {
+      text = readFileSync(CAPABILITY_MANIFEST_PATH, "utf8");
+    } catch {
+      text = JSON.stringify(
+        {
+          error: "manifest_not_found",
+          expectedPath: "THIRI/lab/agent-capability.v1.json",
+          hint: "Run THIRI/lab/scripts/generate-agent-capability.mjs",
+        },
+        null,
+        2,
+      );
+    }
+    return {
+      contents: [{
+        uri: "thiri://studio/capability-manifest",
+        text,
         mimeType: "application/json",
       }],
     };

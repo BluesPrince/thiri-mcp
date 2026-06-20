@@ -61,6 +61,19 @@ For **hear-it** agent loops (conduct → Csound score → WAV), add a second loc
 
 Requires **Csound CLI** on PATH for WAV render. Proof: `npm run test:conductor` · live docs: [build.thiri.ai/lab/conductor-mcp](https://build.thiri.ai/lab/conductor-mcp) · [agent recipes](https://build.thiri.ai/lab/agent-recipes).
 
+### Conductor Agent (vibe compose)
+
+End-to-end persona for local vibe composition — skill, CLI, and Band dashboard panel:
+
+| Entry | Command / path |
+|-------|----------------|
+| **Cursor skill** | Copy `THIRI/lab/skills/thiri-conductor-agent/SKILL.md` → `~/.cursor/skills/thiri-conductor-agent/SKILL.md` |
+| **CLI** | `cd thiri-mcp && npm run conductor:vibe -- "gospel ballad in F minor"` |
+| **Dashboard** | `npm run dev:studio` → [localhost:5173/band](http://localhost:5173/band) → **Vibe Conduct** panel |
+| **Lab proof** | [build.thiri.ai/lab/conductor-agent](https://build.thiri.ai/lab/conductor-agent) |
+
+Dual MCP config above + `mapConductResultToStudioModules` after each `conduct_band`. Last CLI render writes `~/.thiri/conductor-last.json` (local only, not committed).
+
 ### Flagship agent recipe (analyze → conduct → render → critique)
 
 Paste in order after dual MCP config above:

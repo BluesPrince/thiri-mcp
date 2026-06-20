@@ -195,3 +195,35 @@ paths:
           content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "429": { $ref: "#/components/responses/RateLimited" }
+  /v2/conduct:
+    post:
+      summary: Conduct a band arrangement from natural language
+      description: Returns lane assignments, lead sheet, and base64 MIDI for browser or Csound render pipelines.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prompt]
+              properties:
+                prompt: { type: string, example: "Gospel ballad in F minor, slow swing" }
+                key: { type: string, example: Fm }
+                tempo: { type: number, example: 72 }
+      responses:
+        "200":
+          description: Band conduct result with lanes and MIDI
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lanes: { type: object }
+                  leadSheet: { type: string }
+                  midiBase64: { type: string }
+                  durationSec: { type: number }
+        "400":
+          description: Invalid prompt or parameters
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }

@@ -1,7 +1,7 @@
 {
   "name": "@bluesprincemedia/thiri-mcp",
   "version": "0.3.0",
-  "description": "Deterministic music theory MCP server + REST API for AI builders — analyze chords, roman-numeral analysis, voicings, and reharmonization, computed not guessed.",
+  "description": "Deterministic music theory MCP server + REST API for AI builders — analyze chords, roman-numeral analysis, voicings, reharmonization, and conduct, computed not guessed.",
   "author": "Blues Prince Media <api@bluesprince.ai>",
   "license": "MIT",
   "homepage": "https://thiri.ai/developers.html",
@@ -26,6 +26,8 @@
     "voice-leading",
     "reharmonization",
     "harmony",
+    "csound",
+    "conduct",
     "ai-agent",
     "claude",
     "cursor",
@@ -33,15 +35,23 @@
   ],
   "type": "module",
   "bin": {
-    "thiri-mcp": "dist/index.js"
+    "thiri-mcp": "dist/index.js",
+    "thiri-conductor-mcp": "conductor-server.mjs",
+    "thiri-composition-mcp": "composition-server.mjs"
   },
   "files": [
-    "dist"
+    "dist",
+    "conductor-server.mjs",
+    "composition-server.mjs",
+    "vendor"
   ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test:composition": "node mcp-comp-test.mjs",
+    "test:conductor": "node mcp-conductor-test.mjs",
+    "conductor:vibe": "node conductor-agent.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",

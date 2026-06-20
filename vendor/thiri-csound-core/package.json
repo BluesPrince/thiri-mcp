@@ -1,0 +1,22 @@
+{
+  "name": "@thiri/csound-core",
+  "version": "0.1.0",
+  "description": "Shared THIRI Csound score builders, conduct lanes→score, and CSD assembly",
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs",
+    "./lanes": "./lanesToScore.mjs",
+    "./score": "./scoreBuilder.mjs",
+    "./render": "./csoundRender.mjs",
+    "./orchestras/thiri-band.orc": "./orchestras/thiri-band.orc"
+  },
+  "files": [
+    "index.mjs",
+    "lanesToScore.mjs",
+    "scoreBuilder.mjs",
+    "csoundRender.mjs",
+    "orchestras/"
+  ],
+  "license": "MIT"
+}

@@ -80,3 +80,86 @@ conformance-tested before deploy.
 - [ ] `mcp.thiri.ai` worker — `wrangler deploy` from `thiri-api-worker/mcp-worker/`
 - [ ] npm package — version bump + `npm publish` (if the directory entry points at npm)
 - [ ] Re-run the OpenAI directory scan
+
+## Per-field justification text (OpenAI form, paste-ready)
+
+The form asks, per tool, to "describe why" each value is set. Copy below.
+
+### analyze_chord
+- **Read Only = True:** Parses a chord symbol into its root, quality, intervals, and (with a key) Roman numeral and harmonic function. It only reads the input and returns the computed analysis — no data is created, updated, or stored.
+- **Open World = False:** The analysis comes entirely from a fixed, built-in music-theory engine (a finite set of chord qualities and scales). It makes no network, search, or external calls, so the same chord always produces the same result.
+- **Destructive = False:** It returns computed analysis only; it overwrites and deletes nothing, so there is nothing destructive to undo.
+
+### resolve_chord
+- **Read Only = True:** Resolves a chord symbol to its spelled notes, frequencies (Hz), MIDI numbers, and recommended scales. It reads the input and returns the computed spelling without modifying any state.
+- **Open World = False:** Every value is derived from the same fixed, deterministic theory engine — no internet or external service is consulted, and identical input always yields identical output.
+- **Destructive = False:** The response is purely computed information; nothing is written, overwritten, or removed.
+
+### generate_voicing
+- **Read Only = True:** Computes an instrument-ready voicing for a chord (optionally scoring voice-leading against a supplied previous voicing) and returns it. It plays nothing and persists nothing — no state changes.
+- **Open World = False:** The voicing is calculated in-engine from fixed theory data; there are no external lookups or unbounded entities, and results are deterministic for given inputs.
+- **Destructive = False:** It only returns the generated voicing; no existing data is altered or deleted.
+
+### reharmonize
+- **Read Only = True:** Takes a chord progression and returns reharmonized alternatives using named jazz techniques. It reads the input progression and returns computed alternatives without storing or changing anything.
+- **Open World = False:** Alternatives are computed from a fixed set of techniques and theory tables inside the engine — no external/world interaction — and are deterministic for a given progression.
+- **Destructive = False:** It returns suggested alternative progressions only; the original input is untouched and nothing is deleted or overwritten.
+
+## Testing step (OpenAI form)
+
+### Test credentials
+THIRI's MCP authenticates by **API key**, not username/password. The OAuth
+`/authorize` page ("Connect your API key") accepts a `sk_live_…` key and grants
+access immediately — no account creation, no 2FA. Provide a dedicated **free-tier**
+key (1,000 calls/mo — ample for testing) in the credentials box, e.g.:
+
+```
+THIRI uses an API key (no username/password). When the connector opens the
+"Connect your API key" screen, paste this free-tier test key:
+  sk_live_…   <-- dedicated OpenAI test key (do NOT commit the real value)
+```
+
+### 5 test cases (paste-ready)
+
+1. **Analyze a chord's function in a key**
+   - *User prompt:* "What's the roman numeral and harmonic function of G7 in the key of C?"
+   - *Tool triggered:* `analyze_chord`
+   - *Expected output:* G7 parsed as a dominant 7th (root G, quality "7", notes G B D F); identified as **V7** in C major — scale degree 5, dominant function, diatonic.
+
+2. **Spell a chord and get improvisation scales**
+   - *User prompt:* "Spell out Cmaj7 and tell me what scales I can solo with over it."
+   - *Tool triggered:* `resolve_chord`
+   - *Expected output:* Cmaj7 → notes **C E G B**, with MIDI numbers and frequencies (Hz), plus recommended scales (e.g. C Ionian, C Lydian).
+
+3. **Generate a jazz voicing in a style**
+   - *User prompt:* "Give me a rootless (Bill Evans) voicing for Dm7."
+   - *Tool triggered:* `generate_voicing`
+   - *Expected output:* An instrument-ready Dm7 voicing in the rootless/`bill_evans` style — note names + MIDI, root omitted, color tones included.
+
+4. **Voice-lead smoothly between two chords**
+   - *User prompt:* "I just played Dm7 voiced as F3 A3 C4 E4. Give me a G7 voicing that voice-leads smoothly from it."
+   - *Tool triggered:* `generate_voicing` (with `previousNotes`)
+   - *Expected output:* A G7 voicing with minimal movement from the supplied Dm7 voicing, plus a `voiceLeadingScore` for the transition.
+
+5. **Reharmonize a progression**
+   - *User prompt:* "Reharmonize the progression Dm7 G7 Cmaj7 in the key of C — show me the options."
+   - *Tool triggered:* `reharmonize`
+   - *Expected output:* One alternative per applicable technique (e.g. tritone_sub → Dm7 **Db7** Cmaj7; ii–V insertion; etc.), each with the new progression and a plain-English explanation.
+
+### 3 negative test cases (THIRI should NOT trigger)
+
+Music-adjacent prompts (so the model might reach for THIRI) that fall outside its
+actual function — it computes harmony from text chord symbols; it does not make
+audio, take audio input, or recommend music.
+
+1. **Generate actual audio**
+   - *User prompt:* "Produce a 30-second lo-fi jazz piano track I can download."
+   - *Expected:* No THIRI tool fires. THIRI returns chords/notes/voicings as **data**, not rendered audio — this should route to an audio/music-generation capability, not THIRI.
+
+2. **Identify chords from a recording (audio input)**
+   - *User prompt:* "Listen to this song clip and tell me what chords are being played."
+   - *Expected:* No THIRI tool fires. THIRI's tools take a chord **symbol/progression as text** (e.g. "Dm7"); they do not accept or analyze audio. Audio-to-chord transcription is out of scope.
+
+3. **Recommend music to listen to**
+   - *User prompt:* "Recommend a few relaxing jazz albums for a dinner party."
+   - *Expected:* No THIRI tool fires. THIRI computes harmony for given chords; it is not a recommender, catalog, or streaming tool — this is a general-knowledge/recommendation task.
