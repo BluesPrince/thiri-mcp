@@ -109,6 +109,9 @@ export function assembleConductCsd(orcText, scoreText, outputWav = null) {
   const csOptions = outputWav
     ? `-o ${outputWav} -W -d --limiter=0.95`
     : "-o dac -W -d --limiter=0.95";
+  // Real-time (dac) needs an `f 0` keep-alive; an OFFLINE WAV render must NOT have it, or csound
+  // renders the full hour — the score's own events define the length (`i 99 0 durationSec+tail`).
+  const keepAlive = outputWav ? "" : "f 0 3600\n";
   return `<CsoundSynthesizer>
 <CsOptions>
 ${csOptions}
@@ -117,8 +120,7 @@ ${csOptions}
 ${orcText}
 </CsInstruments>
 <CsScore>
-f 0 3600
-${scoreText}
+${keepAlive}${scoreText}
 </CsScore>
 </CsoundSynthesizer>`;
 }
