@@ -10,6 +10,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { lanesToScore, renderCsoundWav, playWav, csoundEnv, applyTensionToScore } from "./vendor/thiri-csound-core/index.mjs";
+import { validateCsound, findOpcode } from "./vendor/csound-capability/csound-tools.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const CORPUS_PATH = join(__dirname, "vendor", "csound-corpus-summary.json");
@@ -170,6 +171,27 @@ server.tool(
     } catch (e) {
       return fail(e.message);
     }
+  },
+);
+
+server.tool(
+  "validate_csound",
+  "Validate Csound .orc/.csd against the capability manifest BEFORE rendering — catches typo'd, miscased, or invented opcodes (the common AI hallucinations). Returns {ok, opcodesUsed, errors[]} with 'did you mean' hints. Scopes to <CsInstruments>; in-file UDOs count as valid.",
+  { code: z.string().describe("Csound code — a full .csd or just the <CsInstruments> body / .orc") },
+  async ({ code }) => {
+    try { return ok(validateCsound(code)); } catch (e) { return fail(e.message); }
+  },
+);
+
+server.tool(
+  "find_opcode",
+  "Search the Csound opcode census by name/substring (e.g. 'moog', 'reverb', 'osc'). Returns matching opcodes with their signatures so an agent can pick a real one instead of guessing.",
+  {
+    query: z.string().describe("opcode name or substring, e.g. 'moogladder' or 'reverb'"),
+    limit: z.number().optional().describe("max results (default 12)"),
+  },
+  async ({ query, limit }) => {
+    try { return ok(findOpcode(query, limit ?? 12)); } catch (e) { return fail(e.message); }
   },
 );
 
