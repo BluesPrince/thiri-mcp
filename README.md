@@ -1,8 +1,11 @@
 # 🎷 THIRI Chord Intelligence — MCP Server
 
 [![npm](https://img.shields.io/npm/v/@bluesprincemedia/thiri-mcp)](https://www.npmjs.com/package/@bluesprincemedia/thiri-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/@bluesprincemedia/thiri-mcp)](https://www.npmjs.com/package/@bluesprincemedia/thiri-mcp)
+[![CI](https://github.com/BluesPrince/thiri-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/BluesPrince/thiri-mcp/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/@bluesprincemedia/thiri-mcp)](./LICENSE)
 ![MCP](https://img.shields.io/badge/MCP-server-black)
+[![Glama score](https://glama.ai/mcp/servers/BluesPrince/thiri-mcp/badges/score.svg)](https://glama.ai/mcp/servers/BluesPrince/thiri-mcp)
 
 **Give your AI real music theory.** THIRI is the deterministic **music theory MCP server + API** for AI builders — it lets Claude, Cursor, or any [MCP](https://modelcontextprotocol.io) agent **analyze chords, run roman-numeral analysis, generate voicings, and reharmonize progressions** with answers that are *computed, not guessed*.
 
@@ -11,6 +14,14 @@ LLMs hallucinate music theory: wrong notes, fake roman numerals, voicings that d
 **Downstream of Suno / Udio or any generator?** Wrap the output and get a correct chord chart your agent can trust. And unlike `tonal.js` or `music21`, THIRI is hosted and agent-native (no install, any language) — and it *reharmonizes* and *voice-leads*, not just looks chords up.
 
 > ⭐ If this is useful, star the repo — it helps other musicians and agent builders find it.
+
+## Musicians: 2-minute setup (no code)
+
+1. Get a free key at **[build.thiri.ai/developers](https://build.thiri.ai/developers)**
+2. In **Claude**: Settings → **Connectors** → **Add custom connector** → URL `https://mcp.thiri.ai/mcp` → paste your `sk_live_` key
+3. Ask Claude: *"Reharmonize Dm7 G7 Cmaj7 with Coltrane changes."*
+
+That's it — no install, no config file. Builders: full install options (Claude Code, Desktop config, raw HTTP) are [below](#install).
 
 ## What you can ask
 > *"Analyze Dm7b5 in C."* → `iiø7`, half-diminished, borrowed predominant, + scale options
