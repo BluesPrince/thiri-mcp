@@ -7,6 +7,15 @@ chord MCP already is); the engine runs server-side and is metered by API key.
 **Interim state (done 2026-07-23):** `vendor/` relicensed MIT → PolyForm
 Noncommercial 1.0.0, so resale is prohibited while this migration proceeds.
 
+**Half B — DONE (2026-07-23):** Csound render moved behind `POST /v2/render`, served by
+a Cloudflare Container (`thiri-render`, `render-container/` in thiri-api-worker) running
+csound 6.18. Container has no public route (`workers_dev=false`); reachable only via a
+service binding from the main worker, which auth's + meters. `conductor-server.mjs` is now
+a thin client; `vendor/thiri-csound-core` (orchestra + score builder + tension mapper)
+DELETED from repo + package. Package (0.5.0) ships zero engine IP. Two render bugs fixed
+en route (BigInt crash; `f 0 3600` hour-long render → now music-length + tail). Verified in
+prod end-to-end (prompt → WAV, authed + metered). npm NOT republished (gated).
+
 **Half A — DONE (2026-07-23):** composition engine moved behind `POST /v2/compose`
 on `chords.thiri.ai` (metered: auth + RPM + monthly quota); `composition-server.mjs`
 rewritten as a thin client (holds composition JSON, round-trips it); `local-audio.mjs`
