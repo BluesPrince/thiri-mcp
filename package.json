@@ -1,6 +1,6 @@
 {
   "name": "@bluesprincemedia/thiri-mcp",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Deterministic music theory MCP server + REST API for AI builders — analyze chords, roman-numeral analysis, voicings, reharmonization, and conduct, computed not guessed.",
   "author": "Blues Prince Media <api@bluesprince.ai>",
   "license": "SEE LICENSE IN LICENSE",
@@ -43,7 +43,9 @@
     "dist",
     "conductor-server.mjs",
     "composition-server.mjs",
-    "vendor"
+    "local-audio.mjs",
+    "vendor/thiri-csound-core",
+    "vendor/csound-corpus-summary.json"
   ],
   "scripts": {
     "build": "tsc",

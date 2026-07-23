@@ -7,6 +7,14 @@ chord MCP already is); the engine runs server-side and is metered by API key.
 **Interim state (done 2026-07-23):** `vendor/` relicensed MIT → PolyForm
 Noncommercial 1.0.0, so resale is prohibited while this migration proceeds.
 
+**Half A — DONE (2026-07-23):** composition engine moved behind `POST /v2/compose`
+on `chords.thiri.ai` (metered: auth + RPM + monthly quota); `composition-server.mjs`
+rewritten as a thin client (holds composition JSON, round-trips it); `local-audio.mjs`
+added for the engine-free local MIDI→fluidsynth path; `vendor/thiri-composition-engine`
+DELETED from the package + repo. Verified end-to-end with a real key (authed 200s,
+metering, MIDI). Package bumped to 0.4.0 — **NOT yet republished** (gated on go-ahead).
+**Half B (Csound → container) is next and still open.**
+
 ## Current exposure
 `files: ["dist", "conductor-server.mjs", "composition-server.mjs", "vendor"]`
 ships `vendor/thiri-composition-engine/*` and `vendor/thiri-csound-core/*` as
