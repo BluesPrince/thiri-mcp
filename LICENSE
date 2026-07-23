@@ -1,3 +1,19 @@
+THIRI MCP — Licensing overview
+==============================
+
+This repository is dual-licensed:
+
+  * The MCP client/glue code (repository root, `src/`, the `*-server.mjs`
+    entrypoints, tests, and docs) is licensed under the MIT License, below.
+
+  * The `vendor/` directory — the THIRI composition engine and THIRI Csound
+    core — is NOT MIT. It is licensed under the PolyForm Noncommercial
+    License 1.0.0. See `vendor/LICENSE.md`. Commercial use, resale, or
+    offering it (or a derivative) as a paid product/service is not permitted
+    without a commercial license (api@bluesprince.ai).
+
+-------------------------------------------------------------------------------
+
 MIT License
 
 Copyright (c) 2026 Blues Prince Media

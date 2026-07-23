@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "description": "Deterministic music theory MCP server + REST API for AI builders — analyze chords, roman-numeral analysis, voicings, reharmonization, and conduct, computed not guessed.",
   "author": "Blues Prince Media <api@bluesprince.ai>",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://thiri.ai/developers.html",
   "repository": {
     "type": "git",

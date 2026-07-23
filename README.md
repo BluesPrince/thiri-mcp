@@ -148,4 +148,12 @@ npm install && npm run build && npm start
 ```
 
 ## License
-MIT — © 2026 Blues Prince Media. The client is open; the engine is a hosted service.
+Dual-licensed — © 2026 Blues Prince Media:
+- **Client / MCP glue** (root, `src/`, `*-server.mjs`, tests, docs): **MIT** — open.
+- **`vendor/` engine** (THIRI composition engine + Csound core): **PolyForm
+  Noncommercial 1.0.0** — source-available, no commercial use or resale. See
+  [`vendor/LICENSE.md`](./vendor/LICENSE.md). Commercial licensing: api@bluesprince.ai.
+
+> The composition engine is being migrated behind the API (hosted service); the
+> Csound renderer to a container render service. Until that ships, the engine
+> source lives here under the noncommercial terms above rather than MIT.
