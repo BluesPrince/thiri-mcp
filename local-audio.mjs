@@ -44,6 +44,13 @@ export function writeMidiBase64(midiBase64, path = "/tmp/thiri-composition.mid")
   return { path, bytes: buf.length };
 }
 
+// Write raw WAV bytes (from the /v2/render container) to a .wav file.
+export function writeWavBytes(bytes, path = "/tmp/thiri-render.wav") {
+  const buf = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
+  writeFileSync(path, buf);
+  return { path, bytes: buf.length };
+}
+
 export function renderWav(midiPath, wavPath = midiPath.replace(/\.mid$/i, ".wav")) {
   const env = playbackEnv();
   if (!env.canRenderAudio) {
