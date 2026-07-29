@@ -1,8 +1,8 @@
 # License for `vendor/` — THIRI Composition & Csound Engine
 
-The contents of this `vendor/` directory (the THIRI composition engine and the
-THIRI Csound core) are **NOT** covered by the MIT license in the repository root.
-They are licensed separately under the **PolyForm Noncommercial License 1.0.0**.
+The contents of this `vendor/` directory are licensed under the **PolyForm
+Noncommercial License 1.0.0** — the same license that, as of v0.5.1, covers the
+repository as a whole (see the root `LICENSE`).
 
 Required Notice: Copyright 2026 Blues Prince Media (https://thiri.ai)
 

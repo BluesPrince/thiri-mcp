@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/@bluesprincemedia/thiri-mcp)](https://www.npmjs.com/package/@bluesprincemedia/thiri-mcp)
 [![npm downloads](https://img.shields.io/npm/dm/@bluesprincemedia/thiri-mcp)](https://www.npmjs.com/package/@bluesprincemedia/thiri-mcp)
 [![CI](https://github.com/BluesPrince/thiri-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/BluesPrince/thiri-mcp/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/@bluesprincemedia/thiri-mcp)](./LICENSE)
+[![license](https://img.shields.io/badge/license-PolyForm%20NC%201.0.0-blue)](./LICENSE)
 ![MCP](https://img.shields.io/badge/MCP-server-black)
 [![Glama score](https://glama.ai/mcp/servers/BluesPrince/thiri-mcp/badges/score.svg)](https://glama.ai/mcp/servers/BluesPrince/thiri-mcp)
 
@@ -40,9 +40,9 @@ That's it — no install, no config file. Builders: full install options (Claude
 
 > Runs on the **v2 grid engine** — correct sus chords, real triads, enharmonic spelling, all altered dominants — with request timeouts, quota reporting, and structured errors.
 
-### Local Csound MCP (Desktop only)
+### Conductor & composition companions (Desktop only)
 
-For **hear-it** agent loops (conduct → Csound score → WAV), add a second local server alongside hosted theory tools:
+For **hear-it** agent loops (conduct → server-side render → WAV through your speakers), add a second local server alongside hosted theory tools:
 
 ```json
 {
@@ -67,10 +67,10 @@ For **hear-it** agent loops (conduct → Csound score → WAV), add a second loc
 
 | Bin | Tools |
 |-----|-------|
-| `thiri-conductor-mcp` | `conduct_band`, `build_csound_score`, `render_csound_wav`, `play_audio`, `search_csound_corpus`, `render_with_tension` |
+| `thiri-conductor-mcp` | `conduct_band`, `render_audio` (server-side Csound via `POST /v2/render`), `play_audio`, `search_csound_corpus` |
 | `thiri-composition-mcp` | Composition IR tools + `play_composition` (fluidsynth preview) |
 
-Requires **Csound CLI** on PATH for WAV render. Proof: `npm run test:conductor` · live docs: [build.thiri.ai/lab/conductor-mcp](https://build.thiri.ai/lab/conductor-mcp) · [agent recipes](https://build.thiri.ai/lab/agent-recipes).
+Rendering runs **server-side** as of v0.5.0 — no Csound install needed. Proof: `npm run test:conductor` · live docs: [build.thiri.ai/lab/conductor-mcp](https://build.thiri.ai/lab/conductor-mcp) · [agent recipes](https://build.thiri.ai/lab/agent-recipes).
 
 ### Conductor Agent (vibe compose)
 
@@ -91,23 +91,23 @@ Paste in order after dual MCP config above:
 
 1. **Analyze** — *"Analyze Dm7 G7 Cmaj7 in key C with analyze_chord; summarize roman numerals and tension."*
 2. **Conduct** — *"conduct_band: warm Rhodes pad, walking bass, brush drums, 8 bars medium swing in C."*
-3. **Render** — *"build_csound_score from lanes, then render_csound_wav at tempo 120."*
+3. **Render** — *"render_audio from the conduct result at tempo 120."*
 4. **Critique** — *"play_audio; critique voice-leading and register balance; suggest one revision."*
 
 Full prompts: [build.thiri.ai/lab/agent-recipes](https://build.thiri.ai/lab/agent-recipes)
 
 ### Hosted vs local boundary
 
-| Surface | Csound WAV |
-|---------|------------|
+| Surface | Audio render |
+|---------|--------------|
 | `mcp.thiri.ai` / hosted connector | No — theory + `conduct_band` lanes only |
-| Local `thiri-conductor-mcp` | Yes — requires Csound CLI on your machine |
+| Local `thiri-conductor-mcp` | Yes — WAV rendered server-side (`POST /v2/render`), played locally; no Csound install needed |
 
 ## Install
 Get a free key at **[build.thiri.ai/developers](https://build.thiri.ai/developers)**, then pick a path:
 
 **Claude Desktop / web / mobile — hosted (one-click custom connector, nothing to install):**
-Settings → Connectors → **Add custom connector** → URL `https://mcp.thiri.ai/mcp` → paste your `sk_live_` key on the consent page. Same 4 tools, same key, same quota — no config file, no `npx`.
+Settings → Connectors → **Add custom connector** → URL `https://mcp.thiri.ai/mcp` → paste your `sk_live_` key on the consent page. Same 5 tools, same key, same quota — no config file, no `npx`.
 
 **Claude Code (one line):**
 ```sh
@@ -134,7 +134,7 @@ curl -X POST https://chords.thiri.ai/v2/analyze \
   -H "Authorization: Bearer YOUR_KEY" -H "content-type: application/json" \
   -d '{"chord":"Dm7b5","key":"C"}'
 ```
-Four endpoints: `/v2/analyze`, `/v2/resolve`, `/v2/voicing`, `/v2/reharmonize`, `/v2/conduct`. See [`openapi.yaml`](./openapi.yaml).
+Five endpoints: `/v2/analyze`, `/v2/resolve`, `/v2/voicing`, `/v2/reharmonize`, `/v2/conduct`. See [`openapi.yaml`](./openapi.yaml).
 
 ## Environment variables
 | Variable | Default | Description |
@@ -148,12 +148,11 @@ npm install && npm run build && npm start
 ```
 
 ## License
-Dual-licensed — © 2026 Blues Prince Media:
-- **Client / MCP glue** (root, `src/`, `*-server.mjs`, tests, docs): **MIT** — open.
-- **`vendor/` engine** (THIRI composition engine + Csound core): **PolyForm
-  Noncommercial 1.0.0** — source-available, no commercial use or resale. See
-  [`vendor/LICENSE.md`](./vendor/LICENSE.md). Commercial licensing: api@bluesprince.ai.
+**PolyForm Noncommercial 1.0.0** — © 2026 Blues Prince Media. Free for personal,
+research, and noncommercial use; commercial use requires a license
+(api@bluesprince.ai). See [`LICENSE`](./LICENSE). Versions published at or
+before v0.5.0 remain under the MIT/PolyForm dual license they shipped with.
 
-> The composition engine is being migrated behind the API (hosted service); the
-> Csound renderer to a container render service. Until that ships, the engine
-> source lives here under the noncommercial terms above rather than MIT.
+> As of v0.5.0 the composition engine and Csound renderer run server-side behind
+> the hosted API (`POST /v2/compose`, `POST /v2/render`); their source no longer
+> ships in this package.

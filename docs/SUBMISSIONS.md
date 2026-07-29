@@ -36,7 +36,7 @@ auto-surfaces stars), then **B**, then the human-only posts (**C/D**). All assum
 - [ ] Repo public · README polished (✅ done) · `openapi.yaml` (✅) · `examples/` cookbook (✅) · `conformance/` (✅)
 - [ ] Demo GIF in the README (Claude reharmonizing a tune) ← the single biggest conversion lever
 - [ ] A couple of "good first issue" labels
-- [ ] `LICENSE` (MIT) present
+- [x] `LICENSE` present (PolyForm Noncommercial 1.0.0 as of v0.5.1; MIT through v0.5.0)
 
 > Metric reality: registries/awesome-lists get you *discovered*; the demo GIF + 30-second quickstart
 > get you *starred*. Ship the GIF before the Show HN.
