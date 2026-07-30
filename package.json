@@ -1,7 +1,7 @@
 {
   "name": "@bluesprincemedia/thiri-mcp",
   "mcpName": "ai.thiri/chord-intelligence",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Deterministic music theory MCP server + REST API for AI builders — analyze chords, roman-numeral analysis, voicings, reharmonization, and conduct, computed not guessed.",
   "author": "Blues Prince Media <dennison@bluesprincemedia.com>",
   "license": "PolyForm-Noncommercial-1.0.0",

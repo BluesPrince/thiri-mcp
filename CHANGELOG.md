@@ -2,7 +2,15 @@
 
 All notable changes to `@bluesprincemedia/thiri-mcp`. Versions map to npm releases.
 
-## Unreleased (0.5.1)
+## 0.5.2 — 2026-07-30
+
+- **Contact email corrected everywhere** — `dennison@bluesprincemedia.com` replaces the
+  stale `api@bluesprince.ai` in the README, LICENSE files, and the package `author`
+  field. If you need to reach a human, that address works.
+- First published version carrying **`mcpName: "ai.thiri/chord-intelligence"`** in
+  package.json — enables the npm package listing in the official MCP registry.
+
+## 0.5.1 — 2026-07-29
 
 - **Relicensed the repository to PolyForm Noncommercial 1.0.0** (was MIT for the
   client/glue + PolyForm for `vendor/`). Commercial licensing: dennison@bluesprincemedia.com.
