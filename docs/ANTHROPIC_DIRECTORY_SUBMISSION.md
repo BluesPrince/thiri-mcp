@@ -24,7 +24,7 @@
 | **Documentation** | `https://build.thiri.ai/developers` · README in the published `@bluesprincemedia/thiri-mcp` package |
 | **Privacy policy** | `https://thiri.ai/privacy` |
 | **Terms** | `https://thiri.ai/terms` |
-| **Support** | ⚠️ PICK ONE (see §4) — recommend `enterprise@thiri.ai` (already on the legal pages) |
+| **Support** | ⚠️ PICK ONE (see §4) — recommend `dennison@bluesprincemedia.com` (already on the legal pages) |
 
 ### Description (IP-safe — no method disclosure, no "patent pending")
 > THIRI is a deterministic music-theory engine for chords and progressions. It parses any chord
@@ -89,6 +89,6 @@
 ---
 
 ## 4. Open decisions for the operator
-- **Support email** — surfaces differ: `enterprise@thiri.ai` (privacy/terms), `dennison@bluesprincemedia.com` (developers page), `privacy@bluesprincemedia.com` (VST), `api@bluesprince.ai` (npm author). The directory wants one verified channel.
+- **Support email** — surfaces differ: `dennison@bluesprincemedia.com` (privacy/terms), `dennison@bluesprincemedia.com` (developers page), `dennison@bluesprincemedia.com` (VST), `dennison@bluesprincemedia.com` (npm author). The directory wants one verified channel.
 - **Meter posture** — a public listing + OAuth/DCR lets the public self-provision. Confirm whether the free tier flips on or stays comped before opening the funnel.
 - **IP timing** — directory does not require *filed* IP (the ToS trade-secret/no-reverse-engineer posture is legally sufficient), so the Monday gate is a risk-appetite call, not a compliance blocker.

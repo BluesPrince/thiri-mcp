@@ -8,7 +8,7 @@ Required Notice: Copyright 2026 Blues Prince Media (https://thiri.ai)
 
 Commercial use — including selling, reselling, sublicensing, or offering this
 engine or a derivative of it as a paid product or service — is **not** permitted
-under this license. For a commercial license, contact api@bluesprince.ai.
+under this license. For a commercial license, contact dennison@bluesprincemedia.com.
 
 ---
 

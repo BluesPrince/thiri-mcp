@@ -5,7 +5,7 @@ All notable changes to `@bluesprincemedia/thiri-mcp`. Versions map to npm releas
 ## Unreleased (0.5.1)
 
 - **Relicensed the repository to PolyForm Noncommercial 1.0.0** (was MIT for the
-  client/glue + PolyForm for `vendor/`). Commercial licensing: api@bluesprince.ai.
+  client/glue + PolyForm for `vendor/`). Commercial licensing: dennison@bluesprincemedia.com.
   Versions published at or before 0.5.0 keep the terms they shipped with.
 - Docs corrected to match the v0.5.0 thin-client architecture: conductor tool
   list (`render_audio` replaces the removed `build_csound_score` /

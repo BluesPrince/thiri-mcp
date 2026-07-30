@@ -4,7 +4,7 @@
   "version": "0.5.1",
   "description": "Deterministic music theory MCP server + REST API for AI builders — analyze chords, roman-numeral analysis, voicings, reharmonization, and conduct, computed not guessed.",
   "author": {
-    "name": "Blues Prince Media <api@bluesprince.ai>"
+    "name": "Blues Prince Media <dennison@bluesprincemedia.com>"
   },
   "server": {
     "type": "node",

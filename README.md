@@ -150,7 +150,7 @@ npm install && npm run build && npm start
 ## License
 **PolyForm Noncommercial 1.0.0** — © 2026 Blues Prince Media. Free for personal,
 research, and noncommercial use; commercial use requires a license
-(api@bluesprince.ai). See [`LICENSE`](./LICENSE). Versions published at or
+(dennison@bluesprincemedia.com). See [`LICENSE`](./LICENSE). Versions published at or
 before v0.5.0 remain under the MIT/PolyForm dual license they shipped with.
 
 > As of v0.5.0 the composition engine and Csound renderer run server-side behind
