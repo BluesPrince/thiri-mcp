@@ -2,6 +2,10 @@
 
 All notable changes to `@bluesprincemedia/thiri-mcp`. Versions map to npm releases.
 
+## 0.5.3 — 2026-08-09
+
+- Conductor tool renamed to **`search_corpus`**.
+
 ## 0.5.2 — 2026-07-30
 
 - **Contact email corrected everywhere** — `dennison@bluesprincemedia.com` replaces the
@@ -32,7 +36,7 @@ companion servers became thin clients over the hosted API.
   required anymore.** Removed: `build_csound_score`, `render_csound_wav`,
   `render_with_tension` (their functionality is now inside `/v2/render`).
   Remaining tools: `conduct_band`, `render_audio`, `play_audio`,
-  `search_csound_corpus`.
+  `search_corpus`.
 - `thiri-composition-mcp`: composition IR (validate → render → export) now runs
   behind `POST /v2/compose`; local process handles preview only
   (`play_composition`, fluidsynth — local only).

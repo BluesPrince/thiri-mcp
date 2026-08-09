@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "ai.thiri/chord-intelligence",
   "title": "THIRI Chord Intelligence",
-  "description": "Deterministic music theory for agents: analyze, voice, reharmonize, conduct — computed, not guessed",
-  "version": "0.5.2",
+  "description": "Deterministic music theory for agents: analyze, voice, reharmonize, conduct \u2014 computed, not guessed",
+  "version": "0.5.3",
   "websiteUrl": "https://thiri.ai",
   "repository": {
     "url": "https://github.com/BluesPrince/thiri-mcp",
@@ -20,14 +20,14 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@bluesprincemedia/thiri-mcp",
-      "version": "0.5.2",
+      "version": "0.5.3",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
           "name": "THIRI_API_KEY",
-          "description": "THIRI API key (sk_live_…) — free at build.thiri.ai/developers",
+          "description": "THIRI API key (sk_live_\u2026) \u2014 free at build.thiri.ai/developers",
           "isRequired": true,
           "isSecret": true
         }

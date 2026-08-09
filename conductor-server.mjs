@@ -121,7 +121,7 @@ server.tool(
 );
 
 server.tool(
-  "search_csound_corpus",
+  "search_corpus",
   "Search the indexed Csound FLOSS corpus (public instrument index). Read-only; returns matching instrument summaries.",
   { query: z.string(), category: z.string().optional(), limit: z.number().optional() },
   async ({ query, category, limit }) => {

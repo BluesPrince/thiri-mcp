@@ -67,7 +67,7 @@ For **hear-it** agent loops (conduct → server-side render → WAV through your
 
 | Bin | Tools |
 |-----|-------|
-| `thiri-conductor-mcp` | `conduct_band`, `render_audio` (server-side Csound via `POST /v2/render`), `play_audio`, `search_csound_corpus` |
+| `thiri-conductor-mcp` | `conduct_band`, `render_audio` (server-side Csound via `POST /v2/render`), `play_audio`, `search_corpus` |
 | `thiri-composition-mcp` | Composition IR tools + `play_composition` (fluidsynth preview) |
 
 Rendering runs **server-side** as of v0.5.0 — no Csound install needed. Proof: `npm run test:conductor` · live docs: [build.thiri.ai/lab/conductor-mcp](https://build.thiri.ai/lab/conductor-mcp) · [agent recipes](https://build.thiri.ai/lab/agent-recipes).

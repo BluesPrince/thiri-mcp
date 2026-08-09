@@ -1,8 +1,8 @@
 {
   "manifest_version": "0.2",
   "name": "@bluesprincemedia/thiri-mcp",
-  "version": "0.5.2",
-  "description": "Deterministic music theory MCP server + REST API for AI builders — analyze chords, roman-numeral analysis, voicings, reharmonization, and conduct, computed not guessed.",
+  "version": "0.5.3",
+  "description": "Deterministic music theory MCP server + REST API for AI builders \u2014 analyze chords, roman-numeral analysis, voicings, reharmonization, and conduct, computed not guessed.",
   "author": {
     "name": "Blues Prince Media <dennison@bluesprincemedia.com>"
   },
