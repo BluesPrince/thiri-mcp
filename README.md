@@ -15,6 +15,8 @@ LLMs hallucinate music theory: wrong notes, fake roman numerals, voicings that d
 
 > ⭐ If this is useful, star the repo — it helps other musicians and agent builders find it.
 
+> 👥 **Join the First 55 AI Music Builders**: Want elevated rate limits (300 req/min), direct founder support, and early access to upcoming tools? Join our developer community on **[Skool — Blues People AI](https://www.skool.com/blues-people-ai-4513/about)**.
+
 ## Musicians: 2-minute setup (no code)
 
 1. Get a free key at **[build.thiri.ai/developers](https://build.thiri.ai/developers)**
