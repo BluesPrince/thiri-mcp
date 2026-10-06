@@ -15,11 +15,11 @@ LLMs hallucinate music theory: wrong notes, fake roman numerals, voicings that d
 
 > ⭐ If this is useful, star the repo — it helps other musicians and agent builders find it.
 
-> 👥 **Join the First 55 AI Music Builders**: Want elevated rate limits (300 req/min), direct founder support, and early access to upcoming tools? Join our developer community on **[Skool — Blues People AI](https://www.skool.com/blues-people-ai-4513/about)**.
+> 👥 **Join the AI Music Builders**: Want elevated rate limits, direct founder support, and early access to upcoming tools? Join our developer community on **[Skool — T.H.I.R.I. Builders](https://www.skool.com/thiri-builders-6682/about)**.
 
 ## Musicians: 2-minute setup (no code)
 
-1. Get a free key at **[build.thiri.ai/developers](https://build.thiri.ai/developers)**
+1. Get a free key at **[build.thiri.ai/keys](https://build.thiri.ai/keys)**
 2. In **Claude**: Settings → **Connectors** → **Add custom connector** → URL `https://mcp.thiri.ai/mcp` → paste your `sk_live_` key
 3. Ask Claude: *"Reharmonize Dm7 G7 Cmaj7 with Coltrane changes."*
 
@@ -106,7 +106,7 @@ Full prompts: [build.thiri.ai/lab/agent-recipes](https://build.thiri.ai/lab/agen
 | Local `thiri-conductor-mcp` | Yes — WAV rendered server-side (`POST /v2/render`), played locally; no Csound install needed |
 
 ## Install
-Get a free key at **[build.thiri.ai/developers](https://build.thiri.ai/developers)**, then pick a path:
+Get a free key at **[build.thiri.ai/keys](https://build.thiri.ai/keys)**, then pick a path:
 
 **Claude Desktop / web / mobile — hosted (one-click custom connector, nothing to install):**
 Settings → Connectors → **Add custom connector** → URL `https://mcp.thiri.ai/mcp` → paste your `sk_live_` key on the consent page. Same 5 tools, same key, same quota — no config file, no `npx`.
@@ -141,7 +141,7 @@ Five endpoints: `/v2/analyze`, `/v2/resolve`, `/v2/voicing`, `/v2/reharmonize`, 
 ## Environment variables
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `THIRI_API_KEY` | (none) | Bearer token (`sk_live_…`) — get one at build.thiri.ai/developers |
+| `THIRI_API_KEY` | (none) | Bearer token (`sk_live_…`) — get one at build.thiri.ai/keys |
 | `THIRI_API_URL` | `https://chords.thiri.ai` | API base (override only for local dev) |
 
 ## Development
