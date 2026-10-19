@@ -101,7 +101,13 @@ function formatAnalyzeResponse(data: any): string {
 
   if (data.numeral) {
     lines.push(`**Roman numeral:** ${data.numeral} (degree ${data.degree})`);
+    if (data.numerals && data.numerals.jazz !== data.numerals.classical) {
+      lines.push(`**Jazz / classical:** ${data.numerals.jazz} / ${data.numerals.classical}`);
+    }
     lines.push(`**Function:** ${data.function}${data.diatonic ? " (diatonic)" : " (chromatic)"}`);
+    if (data.alternatives?.length) {
+      lines.push(`**Also reads as:** ${data.alternatives.map((a: any) => `${a.numeral} (${a.function}${a.scale ? ", " + a.scale : ""})`).join("; ")}`);
+    }
   }
 
   if (data.scales?.length) {
@@ -163,14 +169,22 @@ const server = new McpServer({
 server.tool(
   "analyze_chord",
   "Parse a chord symbol into its root, quality, intervals, extensions, and harmonic function. " +
-    "When a key is provided, returns the Roman numeral, scale degree, and whether the chord is diatonic.",
+    "When a key is provided, returns the Roman numeral, scale degree, and whether the chord is diatonic. " +
+    "Numerals use the jazz convention by default (Cmaj7 in Am = ♭IIIΔ7); jazz and classical numerals are both " +
+    "returned, plus any other valid readings as alternatives. Pass scale to read a minor key as harmonic or melodic minor.",
   {
     chord: z.string().describe("Chord symbol (e.g. 'Dm7', 'Cmaj7/E', 'G7#11')"),
-    key: z.string().optional().describe("Key center for functional analysis (e.g. 'C', 'Bb')"),
+    key: z.string().optional().describe("Key center for functional analysis (e.g. 'C', 'Bb', 'Am', 'A harmonic minor')"),
+    scale: z.enum(["major", "natural_minor", "harmonic_minor", "melodic_minor"]).optional()
+      .describe("Scale to read the key in. Default: major, or natural minor with the harmonic-minor V for minor keys."),
+    convention: z.enum(["jazz", "classical"]).optional()
+      .describe("Which numeral convention fills `numeral`. Default: jazz."),
   },
   { title: "Analyze Chord", readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-  async ({ chord, key }) => {
-    const result = await thiriPost("/analyze", { chord, ...(key ? { key } : {}) });
+  async ({ chord, key, scale, convention }) => {
+    const result = await thiriPost("/analyze", {
+      chord, ...(key ? { key } : {}), ...(scale ? { scale } : {}), ...(convention ? { convention } : {}),
+    });
     return { content: [{ type: "text" as const, text: formatAnalyzeResponse(result) + quotaFooter(result) }] };
   },
 );
